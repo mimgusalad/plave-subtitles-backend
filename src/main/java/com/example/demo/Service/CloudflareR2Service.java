@@ -1,8 +1,5 @@
 package com.example.demo.Service;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.S3Object;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,5 +44,7 @@ public class CloudflareR2Service {
             throw new RuntimeException("Failed to get file", e);
         }
     }
+
+    // 삭제하는거 만들어야할듯
 
 }
