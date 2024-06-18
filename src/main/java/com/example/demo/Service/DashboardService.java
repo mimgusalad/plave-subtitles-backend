@@ -2,6 +2,7 @@ package com.example.demo.Service;
 
 import com.example.demo.DTO.Data;
 import com.example.demo.DTO.RawData;
+import com.example.demo.Utils.YoutubeExtractor;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,18 +40,19 @@ public class DashboardService {
         return res.body();
     }
 
-    private static ArrayList<Data> stringToJsonArray(String json) {
+    private static ArrayList<Data> stringToJsonArray(String json) throws IOException, InterruptedException {
         Gson gson = new Gson();
         Type listType = new TypeToken<ArrayList<RawData>>() {}.getType();
         ArrayList<RawData> list = gson.fromJson(json, listType);
         ArrayList<Data> dataList = new ArrayList<>();
         for (RawData rawData : list) {
-            System.out.println(rawData.getMembers());
             Data data = new Data();
+            YoutubeExtractor yt = new YoutubeExtractor();
             data.setDate(rawData.getDate());
             data.setVideoId(rawData.getVideoId());
             data.setMembers(reformat(rawData.getMembers()));
             data.setThumbnail(rawData.getThumbnail().equals("y"));
+            data.setTitle(yt.getTitle(data.getVideoId()));
             dataList.add(data);
         }
         return dataList;

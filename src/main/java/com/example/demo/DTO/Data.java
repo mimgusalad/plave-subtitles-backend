@@ -14,4 +14,5 @@ public class Data {
     String videoId;
     List<String> members;
     Boolean thumbnail;
+    String title;
 }
