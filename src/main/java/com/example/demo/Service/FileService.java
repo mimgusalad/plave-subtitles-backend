@@ -13,7 +13,6 @@ import java.util.ArrayList;
 public class FileService {
     private static StringBuilder sb;
     private static ArrayList<String> result;
-    @Autowired
     CloudflareR2Service cloudflareR2Service;
 
     public String convert(MultipartFile file) throws IOException {

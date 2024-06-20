@@ -16,11 +16,14 @@ import java.io.InputStream;
 
 @RestController
 @RequestMapping("/api/files")
-public class FileUploadController {
+public class FileController {
+    private final FileService fileService;
+    private final CloudflareR2Service cloudflareR2Service;
     @Autowired
-    private FileService fileService;
-    @Autowired
-    private CloudflareR2Service cloudflareR2Service;
+    public FileController(FileService fileService, CloudflareR2Service cloudflareR2Service) {
+        this.fileService = fileService;
+        this.cloudflareR2Service = cloudflareR2Service;
+    }
 
     @PostMapping
     public String uploadFile(@RequestParam("file") MultipartFile[] file) throws IOException {

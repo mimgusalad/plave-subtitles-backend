@@ -25,12 +25,12 @@ public class DashboardService {
     ArrayList<Data> data;
 
     public ArrayList<Data> getData() throws IOException, InterruptedException {
-        String result = getDatabase();
-        data = stringToJsonArray(result);
+        String json = getDatabaseFromSheet();
+        data = deserialize(json);
         return data;
     }
 
-    private String getDatabase() throws IOException, InterruptedException {
+    private String getDatabaseFromSheet() throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
         String uri = "https://opensheet.elk.sh/" + sheetId + "/" + tabName;
         HttpRequest request = HttpRequest.newBuilder()
@@ -40,7 +40,7 @@ public class DashboardService {
         return res.body();
     }
 
-    private static ArrayList<Data> stringToJsonArray(String json) throws IOException, InterruptedException {
+    private static ArrayList<Data> deserialize(String json) throws IOException, InterruptedException {
         Gson gson = new Gson();
         Type listType = new TypeToken<ArrayList<RawData>>() {}.getType();
         ArrayList<RawData> list = gson.fromJson(json, listType);

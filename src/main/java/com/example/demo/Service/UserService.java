@@ -1,14 +1,9 @@
 package com.example.demo.Service;
 
 import com.example.demo.DTO.User;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -20,13 +15,14 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 
 @Service
-public class UserService {
+public class UserService{
     private final HttpClient client = HttpClient.newHttpClient();
 
     @Value("${google.spreadsheet.sheetId}")
     private String sheetId;
 
     private ArrayList<User> userTable;
+    private User currentUser;
 
     private synchronized void initializeUserTable() throws IOException, InterruptedException {
         if(userTable == null){
@@ -44,34 +40,38 @@ public class UserService {
         return gson.fromJson(res, listType);
     }
 
-    public User findUser(String account) {
+    public User findUser(String id, String password) {
         try {
             initializeUserTable();
             for (User user : userTable) {
-                if (user.getAccount().equals(account)) {
-                    return user;
+                if (user.getId().equals(id)) {
+                    if(user.getPassword().equals(password)){
+                        currentUser = user;
+                        return user;
+                    }else{
+                        throw new Error("Wrong password");
+                    }
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
         return null;
     }
 
-    public String getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Object principal = authentication.getPrincipal();
-
-        if (principal instanceof UserDetails) {
-            UserDetails userDetails = (UserDetails) principal;
-            return userDetails.getUsername();
-        } else {
-            return principal.toString();
+    public User findUser(String id) {
+        try {
+            initializeUserTable();
+            for (User user : userTable) {
+                if (user.getId().equals(id)) {
+                    return user;
+                }else{
+                    throw new Error("User not exists");
+                }
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
         }
+        return null;
     }
-
-
-
 }

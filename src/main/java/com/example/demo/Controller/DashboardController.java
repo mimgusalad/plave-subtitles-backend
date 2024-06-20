@@ -13,8 +13,11 @@ import java.util.ArrayList;
 @RestController
 @RequestMapping("/dashboard")
 public class DashboardController {
-    @Autowired
     DashboardService dashboardService;
+    @Autowired
+    public DashboardController(DashboardService dashboardService) {
+        this.dashboardService = dashboardService;
+    }
 
     @GetMapping
     public ArrayList<Data> dashboard() throws IOException, InterruptedException {
