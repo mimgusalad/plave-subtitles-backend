@@ -5,7 +5,6 @@ import com.example.demo.Service.CloudflareR2Service;
 import com.example.demo.Service.UserService;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,16 +28,20 @@ public class UserController {
        return userService.processLogin(loginDTO);
     }
 
+    @GetMapping("/logout")
+    public ResponseEntity<Response> logout() {
+        return userService.processLogout();
+    }
+
     @GetMapping("currentUser")
     public User getCurrentUser() {
         return userService.getCurrentLoggedUser();
     }
 
     @PatchMapping("/profile")
-    public ProfileDTO updateProfile(@RequestParam("file") MultipartFile file) throws IOException, InterruptedException {
+    public ProfileDTO updateProfile(@RequestParam("file") MultipartFile file) throws IOException {
         Gson gson = new Gson();
-        ProfileDTO profileDTO = gson.fromJson(Arrays.toString(file.getBytes()), ProfileDTO.class);
-        return profileDTO;
+        return gson.fromJson(Arrays.toString(file.getBytes()), ProfileDTO.class);
     }
 
 }

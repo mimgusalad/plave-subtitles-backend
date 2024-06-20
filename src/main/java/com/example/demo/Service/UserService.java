@@ -72,7 +72,12 @@ public class UserService{
         return new ResponseEntity<>(new Response(false, "User not found"), HttpStatus.NOT_FOUND);
     }
 
-    public ResponseEntity<Response>  processLogin(LoginDTO loginDTO){
+    public ResponseEntity<Response> processLogin(LoginDTO loginDTO){
         return findUser(loginDTO);
+    }
+
+    public ResponseEntity<Response> processLogout(){
+        currentUserEntity = null;
+        return new ResponseEntity<>(new Response(true, null), HttpStatus.OK);
     }
 }
