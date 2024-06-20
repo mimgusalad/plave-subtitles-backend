@@ -27,7 +27,6 @@ public class YoutubeExtractor {
         String api = "https://noembed.com/embed?dataType=json&url=" + youtubeUrl;
         HttpRequest req = HttpRequest.newBuilder().uri(URI.create(api)).GET().build();
         HttpResponse<String> res = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
-        System.out.println(res.body());
         return res.body();
     }
 }
