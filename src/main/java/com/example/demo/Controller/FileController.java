@@ -1,8 +1,10 @@
 package com.example.demo.Controller;
 
+import com.amazonaws.util.IOUtils;
 import com.example.demo.Service.CloudflareR2Service;
 import com.example.demo.Service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -40,15 +42,22 @@ public class FileController {
     }
 
     @GetMapping
-    public ResponseEntity<Resource> getFiles(@RequestParam("filename") String objectKey) {
-        InputStream inputStream = cloudflareR2Service.getFile(objectKey);
-        InputStreamResource resource = new InputStreamResource(inputStream);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + objectKey);
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(resource);
+    public ResponseEntity<ByteArrayResource> getFile(@RequestParam("filename") String filename) throws IOException {
+        InputStream inputStream = cloudflareR2Service.getFile(filename);
+        ByteArrayResource resource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
+        return ResponseEntity.ok().contentType(MediaType.parseMediaType("application/octet-stream")).body(resource);
     }
+
+//    @GetMapping
+//    public ResponseEntity<Resource> getFiles(@RequestParam("filename") String objectKey) {
+//        InputStream inputStream = cloudflareR2Service.getFile(objectKey);
+//        InputStreamResource resource = new InputStreamResource(inputStream);
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + objectKey);
+//        return ResponseEntity.ok()
+//                .headers(headers)
+//                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+//                .body(resource);
+//    }
 }

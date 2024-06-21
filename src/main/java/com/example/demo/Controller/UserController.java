@@ -33,15 +33,20 @@ public class UserController {
         return userService.processLogout();
     }
 
-    @GetMapping("currentUser")
-    public User getCurrentUser() {
+    @GetMapping("user")
+    public User getCurrentUser() throws IOException {
         return userService.getCurrentLoggedUser();
     }
 
     @PatchMapping("/profile")
-    public ProfileDTO updateProfile(@RequestParam("file") MultipartFile file) throws IOException {
-        Gson gson = new Gson();
-        return gson.fromJson(Arrays.toString(file.getBytes()), ProfileDTO.class);
+    public ResponseEntity<Response> updateProfile(@RequestParam("image") MultipartFile file, @RequestParam("id") String userId) throws IOException {
+        Profile profile = new Profile(file, userId);
+        return cloudflareR2Service.uploadProfileImage(profile);
     }
+//
+//    @GetMapping("/profile")
+//    public ResponseEntity<Response> getProfile(@RequestParam("id") String userId) throws IOException {
+//
+//    }
 
 }

@@ -6,7 +6,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
-public class ProfileDTO {
+public class Profile {
     MultipartFile image;
-    int userId;
+    String userId;
+
+    public Profile(MultipartFile image, String userId) {
+        this.image = image;
+        this.userId = userId;
+    }
 }

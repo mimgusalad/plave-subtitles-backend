@@ -18,16 +18,22 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.Base64;
 
 @Service
 public class UserService{
     private final HttpClient client = HttpClient.newHttpClient();
+    private final CloudflareR2Service cloudflareR2Service;
 
     @Value("${google.spreadsheet.sheetId}")
     private String sheetId;
 
     private ArrayList<UserEntity> userEntityTable;
     private UserEntity currentUserEntity;
+
+    public UserService(CloudflareR2Service cloudflareR2Service) {
+        this.cloudflareR2Service = cloudflareR2Service;
+    }
 
     private synchronized void initializeUserTable() throws IOException, InterruptedException {
         if(userEntityTable == null){
@@ -45,11 +51,15 @@ public class UserService{
         return gson.fromJson(res, listType);
     }
 
-    public User getCurrentLoggedUser(){
+    public User getCurrentLoggedUser() throws IOException {
         User user = new User();
-        user.setId(currentUserEntity.getUserId());
+        if(currentUserEntity == null ){ return null;}
+        user.setId(currentUserEntity.getId());
         user.setUsername(currentUserEntity.getUsername());
         user.setEmail(currentUserEntity.getEmail());
+        String filename = "profile/"+user.getId()+".png";
+        String encodedImage = Base64.getEncoder().encodeToString(cloudflareR2Service.getImage(filename));
+        user.setImage(encodedImage);
         return user;
     }
 
