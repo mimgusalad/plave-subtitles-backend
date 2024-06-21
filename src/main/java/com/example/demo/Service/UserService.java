@@ -1,6 +1,6 @@
 package com.example.demo.Service;
 
-import com.example.demo.DTO.LoginDTO;
+import com.example.demo.DTO.Login;
 import com.example.demo.DTO.Response;
 import com.example.demo.DTO.User;
 import com.example.demo.DTO.UserEntity;
@@ -63,12 +63,12 @@ public class UserService{
         return user;
     }
 
-    private ResponseEntity<Response> findUser(LoginDTO loginDTO) {
+    private ResponseEntity<Response> findUser(Login login) {
         try {
             initializeUserTable();
             for (UserEntity userEntity : userEntityTable) {
-                if (userEntity.getId().equals(loginDTO.getId())) {
-                    if(userEntity.getPassword().equals(loginDTO.getPassword())){
+                if (userEntity.getId().equals(login.getId())) {
+                    if(userEntity.getPassword().equals(login.getPassword())){
                         currentUserEntity = userEntity;
                         return new ResponseEntity<>(new Response(true, null), HttpStatus.OK);
                     }else{
@@ -82,8 +82,8 @@ public class UserService{
         return new ResponseEntity<>(new Response(false, "User not found"), HttpStatus.NOT_FOUND);
     }
 
-    public ResponseEntity<Response> processLogin(LoginDTO loginDTO){
-        return findUser(loginDTO);
+    public ResponseEntity<Response> processLogin(Login login){
+        return findUser(login);
     }
 
     public ResponseEntity<Response> processLogout(){

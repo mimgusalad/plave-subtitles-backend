@@ -1,6 +1,6 @@
 package com.example.demo.Service;
 
-import com.example.demo.DTO.SubtitleDTO;
+import com.example.demo.DTO.Subtitle;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,9 +10,10 @@ import java.io.*;
 import java.util.ArrayList;
 
 @Service
-public class FileService {
+public class SrtFileService {
     private static StringBuilder sb;
     private static ArrayList<String> result;
+    @Autowired
     CloudflareR2Service cloudflareR2Service;
 
     public String convert(MultipartFile file) throws IOException {
@@ -20,7 +21,10 @@ public class FileService {
         InputStream inputStream = jsonToStream(result);
         String originalFilename = file.getOriginalFilename();
         String[] filename = originalFilename.split("\\.");
-        String objectKey = filename[0] + ".json";
+        String[] videoKey = filename[0].split("_");
+        String lang = videoKey[1];
+        String objectKey = "subtitle/"+videoKey[0]+"/"+lang+".json";
+        System.out.println(objectKey);
         cloudflareR2Service.uploadJsonFile(objectKey, inputStream);
         return "success";
     }
@@ -45,7 +49,7 @@ public class FileService {
             String[] timecodes = lines[1].split(" --> ");
             if(timecodes.length < 2) continue;
 
-            SubtitleDTO jsonData = toJsonFormat(lines, timecodes);
+            Subtitle jsonData = toJsonFormat(lines, timecodes);
             String json = gson.toJson(jsonData);
             result.add(json);
         }
@@ -71,12 +75,12 @@ public class FileService {
         return String.format("%.2f", totalSeconds);
     }
 
-    private static SubtitleDTO toJsonFormat(String[] lines, String[] timecodes){
-        SubtitleDTO subtitleDTO = new SubtitleDTO();
-        subtitleDTO.setNumber(lines[0]);
-        subtitleDTO.setStartTime(srtFormatToSeconds(timecodes[0]));
-        subtitleDTO.setEndTime(srtFormatToSeconds(timecodes[1]));
-        subtitleDTO.setText(lines[2]);
-        return subtitleDTO;
+    private static Subtitle toJsonFormat(String[] lines, String[] timecodes){
+        Subtitle subtitle = new Subtitle();
+        subtitle.setNumber(lines[0]);
+        subtitle.setStartTime(srtFormatToSeconds(timecodes[0]));
+        subtitle.setEndTime(srtFormatToSeconds(timecodes[1]));
+        subtitle.setText(lines[2]);
+        return subtitle;
     }
 }

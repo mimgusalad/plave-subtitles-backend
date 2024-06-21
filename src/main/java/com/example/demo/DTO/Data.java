@@ -13,6 +13,6 @@ public class Data {
     String date;
     String videoId;
     List<String> members;
-    Boolean thumbnail;
     String title;
+    List<String> subtitles;
 }

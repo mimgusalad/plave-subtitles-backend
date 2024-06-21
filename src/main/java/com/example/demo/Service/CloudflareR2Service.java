@@ -1,7 +1,10 @@
 package com.example.demo.Service;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ListObjectsRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.example.demo.DTO.Profile;
 import com.example.demo.DTO.Response;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class CloudflareR2Service {
@@ -72,6 +75,40 @@ public class CloudflareR2Service {
         }
     }
 
-    // 삭제하는거 만들어야할듯
+    public ArrayList<String> listFiles(String videoId){
+        try{
+            ArrayList<String> result = new ArrayList<>();
+            ListObjectsRequest listObjectsRequest = new ListObjectsRequest();
+            listObjectsRequest.setBucketName(bucketName);
+            listObjectsRequest.setPrefix("");
+            ObjectListing objectListing = s3.listObjects(listObjectsRequest);
+            String regex = "subtitle/.+/([a-z]{2})\\.json$";
+            Pattern pattern = Pattern.compile(regex);
+
+            for(S3ObjectSummary objectSummary : objectListing.getObjectSummaries()){
+                String key = objectSummary.getKey();
+                if(key.matches("subtitle/"+videoId+"/.*")){
+                    Matcher matcher = pattern.matcher(key);
+                    if(matcher.matches()){
+                        String langCode = matcher.group(1);
+                        result.add(langCode);
+                    }
+                }
+            }
+            return result;
+        }catch(Exception e){
+            throw new RuntimeException("Failed to list files", e);
+        }
+    }
+
+    ResponseEntity<Response> deleteFile(String fileName) {
+        try {
+            s3.deleteObject(bucketName, fileName);
+            return new ResponseEntity<>(new Response(true, "File deleted successfully"), HttpStatus.OK);
+        }catch(Exception e){
+            return new ResponseEntity<>(new Response(false, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 }

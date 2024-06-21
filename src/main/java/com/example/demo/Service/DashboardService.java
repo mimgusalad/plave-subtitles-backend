@@ -3,10 +3,13 @@ package com.example.demo.Service;
 import com.example.demo.DTO.Data;
 import com.example.demo.DTO.Feedback;
 import com.example.demo.DTO.RawData;
+import com.example.demo.DTO.Response;
 import com.example.demo.Utils.YoutubeExtractor;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -24,6 +27,8 @@ public class DashboardService {
     @Value("${google.spreadsheet.tabName}")
     private String tabName;
     ArrayList<Data> data;
+    @Autowired
+    private CloudflareR2Service cloudflareR2Service;
 
     public ArrayList<Data> getData() throws IOException, InterruptedException {
         String json = getDatabaseFromSheet();
@@ -41,7 +46,7 @@ public class DashboardService {
         return res.body();
     }
 
-    private static ArrayList<Data> deserialize(String json) throws IOException, InterruptedException {
+    private ArrayList<Data> deserialize(String json) throws IOException, InterruptedException {
         Gson gson = new Gson();
         Type listType = new TypeToken<ArrayList<RawData>>() {}.getType();
         ArrayList<RawData> list = gson.fromJson(json, listType);
@@ -52,8 +57,8 @@ public class DashboardService {
             data.setDate(rawData.getDate());
             data.setVideoId(rawData.getVideoId());
             data.setMembers(reformat(rawData.getMembers()));
-            data.setThumbnail(rawData.getThumbnail().equals("y"));
             data.setTitle(yt.getTitle(data.getVideoId()));
+            data.setSubtitles(cloudflareR2Service.listFiles(data.getVideoId()));
             dataList.add(data);
         }
         return dataList;
@@ -66,5 +71,10 @@ public class DashboardService {
             list.add(s.trim());
         }
         return list;
+    }
+
+    public ResponseEntity<Response> deleteFile(String videoId, String langCode){
+        String objectKey = "subtitle/"+videoId+"/"+langCode+".json";
+        return cloudflareR2Service.deleteFile(objectKey);
     }
 }

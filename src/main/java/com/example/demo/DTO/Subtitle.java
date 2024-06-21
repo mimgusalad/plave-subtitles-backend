@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class SubtitleDTO {
+public class Subtitle {
     private String number;
     private String startTime;
     private String endTime;
