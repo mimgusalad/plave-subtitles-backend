@@ -10,11 +10,18 @@ import java.io.*;
 import java.util.ArrayList;
 
 @Service
-public class SrtFileService {
+public class SubtitleService {
     private static StringBuilder sb;
     private static ArrayList<String> result;
     @Autowired
     CloudflareR2Service cloudflareR2Service;
+
+    public InputStream getSubtitle(String videoId, String langCode){
+        String filename = "subtitle/"+videoId+"/"+langCode+".json";
+        InputStream inputStream = cloudflareR2Service.getFile(filename);
+        return inputStream;
+
+    }
 
     public String convert(MultipartFile file) throws IOException {
         srtToJson(file);

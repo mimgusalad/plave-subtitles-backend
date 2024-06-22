@@ -4,7 +4,7 @@ import com.amazonaws.util.IOUtils;
 import com.example.demo.DTO.Response;
 import com.example.demo.Service.CloudflareR2Service;
 import com.example.demo.Service.DashboardService;
-import com.example.demo.Service.SrtFileService;
+import com.example.demo.Service.SubtitleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
@@ -19,13 +19,13 @@ import java.io.InputStream;
 @RestController
 @RequestMapping("/file")
 public class FileController {
-    private final SrtFileService srtFileService;
+    private final SubtitleService subtitleService;
     private final CloudflareR2Service cloudflareR2Service;
     private final DashboardService dashboardService;
 
     @Autowired
-    public FileController(SrtFileService srtFileService, CloudflareR2Service cloudflareR2Service, DashboardService dashboardService) {
-        this.srtFileService = srtFileService;
+    public FileController(SubtitleService subtitleService, CloudflareR2Service cloudflareR2Service, DashboardService dashboardService) {
+        this.subtitleService = subtitleService;
         this.cloudflareR2Service = cloudflareR2Service;
         this.dashboardService = dashboardService;
     }
@@ -33,7 +33,7 @@ public class FileController {
     @PostMapping
     public ResponseEntity uploadFile(@RequestParam("file") MultipartFile[] file) throws IOException {
         for (MultipartFile multipartFile : file) {
-            srtFileService.convert(multipartFile);
+            subtitleService.convert(multipartFile);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -48,5 +48,12 @@ public class FileController {
     @DeleteMapping
     public ResponseEntity<Response> deleteFile(@RequestParam("langCode") String langCode, @RequestParam("videoId") String videoId) throws IOException {
         return dashboardService.deleteFile(videoId, langCode);
+    }
+
+    @GetMapping("/subtitle")
+    public ResponseEntity<ByteArrayResource> getSubtitle(@RequestParam("videoId") String videoId, @RequestParam("langCode") String langCode) throws IOException {
+        InputStream inputStream = subtitleService.getSubtitle(videoId, langCode);
+        ByteArrayResource resource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
+        return new ResponseEntity<>(resource, HttpStatus.OK);
     }
 }
