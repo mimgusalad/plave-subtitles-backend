@@ -25,8 +25,4 @@ public class DashboardController {
         return dashboardService.getData();
     }
 
-//    @GetMapping
-//    public void doe(@RequestParam("videoId") String videoId) throws IOException, InterruptedException {
-//        cloudflareR2Service.listFiles(videoId);
-//    }
 }
