@@ -10,6 +10,7 @@ import java.util.List;
 public class RawData {
     String Date;
     String VideoId;
+    String Title;
     String Members;
     String Thumbnail;
 }

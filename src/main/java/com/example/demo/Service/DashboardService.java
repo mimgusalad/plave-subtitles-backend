@@ -5,6 +5,8 @@ import com.example.demo.DTO.Feedback;
 import com.example.demo.DTO.RawData;
 import com.example.demo.DTO.Response;
 import com.example.demo.Utils.YoutubeExtractor;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,27 +39,33 @@ public class DashboardService {
     }
 
     private String getDatabaseFromSheet() throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
-        String uri = "https://opensheet.elk.sh/" + sheetId + "/" + tabName;
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(uri))
+        HttpClient client = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NORMAL)
                 .build();
-        HttpResponse<String> res = client.send(request, HttpResponse.BodyHandlers.ofString());
-        return res.body();
+
+        String scriptUrl = "https://script.google.com/macros/s/AKfycbwhoo5Z0heiD3zW6pc3bLqjnt2NLPaPPEDCdX_YSfxwuyS4uW5yOYH3O2g1QDBYyX3m6A/exec";
+        String urlWithParams = scriptUrl +"?sheetName=Database";
+        HttpRequest req = HttpRequest.newBuilder().uri(URI.create(urlWithParams)).GET().build();
+        try{
+            HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
+            return res.body();
+        }
+        catch(IOException e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private ArrayList<Data> deserialize(String json) throws IOException, InterruptedException {
-        Gson gson = new Gson();
-        Type listType = new TypeToken<ArrayList<RawData>>() {}.getType();
-        ArrayList<RawData> list = gson.fromJson(json, listType);
+        ObjectMapper objectMapper = new ObjectMapper();
+        ArrayList<String[]> list = objectMapper.readValue(json, new TypeReference<ArrayList<String[]>>() {});
         ArrayList<Data> dataList = new ArrayList<>();
-        for (RawData rawData : list) {
+        for(String[] row : list){
             Data data = new Data();
-            YoutubeExtractor yt = new YoutubeExtractor();
-            data.setDate(rawData.getDate());
-            data.setVideoId(rawData.getVideoId());
-            data.setMembers(reformat(rawData.getMembers()));
-            data.setTitle(yt.getTitle(data.getVideoId()));
+            data.setDate(row[0].split("T")[0]);
+            data.setVideoId(row[1]);
+            data.setTitle(row[2]);
+            data.setMembers(reformat(row[3]));
             data.setSubtitles(cloudflareR2Service.listFiles(data.getVideoId()));
             dataList.add(data);
         }
