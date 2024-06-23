@@ -14,6 +14,7 @@ import java.util.ArrayList;
 public class DashboardController {
     DashboardService dashboardService;
     CloudflareR2Service cloudflareR2Service;
+
     @Autowired
     public DashboardController(DashboardService dashboardService, CloudflareR2Service cloudflareR2Service) {
         this.dashboardService = dashboardService;
@@ -23,6 +24,11 @@ public class DashboardController {
     @GetMapping
     public ArrayList<Data> dashboard() throws IOException, InterruptedException {
         return dashboardService.getData();
+    }
+
+    @GetMapping("/subtitle")
+    public ArrayList<String> listSubtitles(@RequestParam("videoId") String videoId){
+        return cloudflareR2Service.listFiles(videoId);
     }
 
 }

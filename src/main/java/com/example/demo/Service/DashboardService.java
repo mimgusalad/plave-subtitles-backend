@@ -22,6 +22,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 
+import static com.example.demo.Service.FeedbackService.getString;
+
 @Service
 public class DashboardService {
     @Value("${google.spreadsheet.sheetId}")
@@ -45,15 +47,7 @@ public class DashboardService {
 
         String scriptUrl = "https://script.google.com/macros/s/AKfycbwhoo5Z0heiD3zW6pc3bLqjnt2NLPaPPEDCdX_YSfxwuyS4uW5yOYH3O2g1QDBYyX3m6A/exec";
         String urlWithParams = scriptUrl +"?sheetName=Database";
-        HttpRequest req = HttpRequest.newBuilder().uri(URI.create(urlWithParams)).GET().build();
-        try{
-            HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
-            return res.body();
-        }
-        catch(IOException e){
-            e.printStackTrace();
-        }
-        return null;
+        return getString(client, urlWithParams);
     }
 
     private ArrayList<Data> deserialize(String json) throws IOException, InterruptedException {
@@ -66,7 +60,6 @@ public class DashboardService {
             data.setVideoId(row[1]);
             data.setTitle(row[2]);
             data.setMembers(reformat(row[3]));
-            data.setSubtitles(cloudflareR2Service.listFiles(data.getVideoId()));
             dataList.add(data);
         }
         return dataList;

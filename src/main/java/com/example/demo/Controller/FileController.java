@@ -30,19 +30,19 @@ public class FileController {
         this.dashboardService = dashboardService;
     }
 
+    @GetMapping
+    public ResponseEntity<ByteArrayResource> getFile(@RequestParam("filename") String filename) throws IOException {
+        InputStream inputStream = cloudflareR2Service.getFile(filename);
+        ByteArrayResource resource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
+        return ResponseEntity.ok().contentType(MediaType.parseMediaType("application/octet-stream")).body(resource);
+    }
+
     @PostMapping
     public ResponseEntity uploadFile(@RequestParam("file") MultipartFile[] file) throws IOException {
         for (MultipartFile multipartFile : file) {
             subtitleService.convert(multipartFile);
         }
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @GetMapping
-    public ResponseEntity<ByteArrayResource> getFile(@RequestParam("filename") String filename) throws IOException {
-        InputStream inputStream = cloudflareR2Service.getFile(filename);
-        ByteArrayResource resource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
-        return ResponseEntity.ok().contentType(MediaType.parseMediaType("application/octet-stream")).body(resource);
     }
 
     @DeleteMapping
