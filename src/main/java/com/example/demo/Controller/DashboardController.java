@@ -23,12 +23,17 @@ public class DashboardController {
 
     @GetMapping
     public ArrayList<Data> dashboard() throws IOException, InterruptedException {
-        return dashboardService.getData();
+        return dashboardService.getDatabase();
     }
 
     @GetMapping("/subtitle")
     public ArrayList<String> listSubtitles(@RequestParam("videoId") String videoId){
         return cloudflareR2Service.listFiles(videoId);
+    }
+
+    @GetMapping("/search")
+    public String findData(@RequestParam("keyword") String keyword) throws IOException, InterruptedException {
+        return  dashboardService.findData(keyword);
     }
 
 }

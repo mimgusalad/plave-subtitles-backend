@@ -33,7 +33,7 @@ public class FeedbackService {
                 .followRedirects(HttpClient.Redirect.NORMAL)
                 .build();
 
-        String scriptUrl = "https://script.google.com/macros/s/AKfycbwhoo5Z0heiD3zW6pc3bLqjnt2NLPaPPEDCdX_YSfxwuyS4uW5yOYH3O2g1QDBYyX3m6A/exec";
+        String scriptUrl = "https://script.google.com/macros/s/AKfycbwssocHHNWL1hYNObdt5R7DqawI3IEr_zAR8GgyCPB0l8PWBEE1Cx5w9uaPUqGYoyKKDg/exec";
         String urlWithParams = scriptUrl +"?sheetName=Feedback";
         return getString(client, urlWithParams);
     }
@@ -51,6 +51,7 @@ public class FeedbackService {
     }
 
     private ArrayList<Feedback> deserialize(String json) throws JsonProcessingException {
+        System.out.println(json);
         ObjectMapper objectMapper = new ObjectMapper();
         ArrayList<String[]> list = objectMapper.readValue(json, new TypeReference<ArrayList<String[]>>() {});
         ArrayList<Feedback> fbList = new ArrayList<>();
@@ -58,10 +59,9 @@ public class FeedbackService {
             Feedback fb = new Feedback();
             fb.setTimestamp(row[0]);
             fb.setVideoId(row[1]);
-            fb.setTimecode(row[2]);
+            fb.setTimecode(row[2].split("d")[1]);
             fb.setMessage(row[3]);
             fbList.add(fb);
-
         }
         return fbList;
     }

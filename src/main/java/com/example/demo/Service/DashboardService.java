@@ -1,25 +1,17 @@
 package com.example.demo.Service;
 
 import com.example.demo.DTO.Data;
-import com.example.demo.DTO.Feedback;
-import com.example.demo.DTO.RawData;
 import com.example.demo.DTO.Response;
-import com.example.demo.Utils.YoutubeExtractor;
+import com.example.demo.Utils.DateConverter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.net.URI;
 import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.ArrayList;
 
 import static com.example.demo.Service.FeedbackService.getString;
@@ -30,14 +22,29 @@ public class DashboardService {
     private String sheetId;
     @Value("${google.spreadsheet.tabName}")
     private String tabName;
-    ArrayList<Data> data;
+    ArrayList<Data> database;
     @Autowired
     private CloudflareR2Service cloudflareR2Service;
 
-    public ArrayList<Data> getData() throws IOException, InterruptedException {
+    public String findData(String keyword) throws IOException, InterruptedException {
+        if( database == null )
+            getDatabase();
+
+        for(Data data : database){
+            DateConverter converter = new DateConverter();
+            String videoId = data.getVideoId();
+            String date = converter.convertDateFormat(data.getDate());
+            String title = data.getTitle();
+            if(keyword.equals(videoId) || keyword.equals(date))
+                return String.format("%s %s", date, data.getTitle());
+        }
+        return null;
+    }
+
+    public ArrayList<Data> getDatabase() throws IOException, InterruptedException {
         String json = getDatabaseFromSheet();
-        data = deserialize(json);
-        return data;
+        database = deserialize(json);
+        return database;
     }
 
     private String getDatabaseFromSheet() throws IOException, InterruptedException {
