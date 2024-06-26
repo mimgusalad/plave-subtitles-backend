@@ -1,6 +1,7 @@
 package com.example.demo.Controller;
 
 import com.amazonaws.util.IOUtils;
+import com.example.demo.DTO.Data;
 import com.example.demo.DTO.Response;
 import com.example.demo.Service.CloudflareR2Service;
 import com.example.demo.Service.DashboardService;
@@ -56,4 +57,11 @@ public class FileController {
         ByteArrayResource resource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
         return new ResponseEntity<>(resource, HttpStatus.OK);
     }
+
+    @PostMapping("/subtitle")
+    public void insert(@RequestBody String[] videoId) throws IOException, InterruptedException {
+        for(String id : videoId)
+            subtitleService.insert(id);
+    }
+
 }

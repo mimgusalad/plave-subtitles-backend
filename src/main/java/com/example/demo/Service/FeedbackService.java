@@ -51,7 +51,6 @@ public class FeedbackService {
     }
 
     private ArrayList<Feedback> deserialize(String json) throws JsonProcessingException {
-        System.out.println(json);
         ObjectMapper objectMapper = new ObjectMapper();
         ArrayList<String[]> list = objectMapper.readValue(json, new TypeReference<ArrayList<String[]>>() {});
         ArrayList<Feedback> fbList = new ArrayList<>();

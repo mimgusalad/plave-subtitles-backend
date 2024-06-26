@@ -32,8 +32,9 @@ public class DashboardController {
     }
 
     @GetMapping("/search")
-    public String findData(@RequestParam("keyword") String keyword) throws IOException, InterruptedException {
-        return  dashboardService.findData(keyword);
+    public String findByKeyword(@RequestParam("keyword") String keyword) throws IOException, InterruptedException {
+        return  dashboardService.findVideoID(keyword);
     }
+
 
 }

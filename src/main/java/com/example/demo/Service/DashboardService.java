@@ -26,17 +26,25 @@ public class DashboardService {
     @Autowired
     private CloudflareR2Service cloudflareR2Service;
 
-    public String findData(String keyword) throws IOException, InterruptedException {
+    public String findVideoID(String keyword) throws IOException, InterruptedException {
         if( database == null )
             getDatabase();
 
         for(Data data : database){
             DateConverter converter = new DateConverter();
-            String videoId = data.getVideoId();
             String date = converter.convertDateFormat(data.getDate());
-            String title = data.getTitle();
-            if(keyword.equals(videoId) || keyword.equals(date))
-                return String.format("%s %s", date, data.getTitle());
+            if(keyword.equals(date))
+                return data.getVideoId();
+        }
+        return keyword;
+    }
+
+    public Data findData(String videoId) throws IOException, InterruptedException {
+        if( database == null )
+            getDatabase();
+        for(Data data : database) {
+            if(data.getVideoId().equals(videoId))
+                return data;
         }
         return null;
     }

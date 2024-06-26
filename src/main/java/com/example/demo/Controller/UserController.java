@@ -31,7 +31,7 @@ public class UserController {
         return userService.processLogout();
     }
 
-    @GetMapping("user")
+    @GetMapping("/user")
     public User getCurrentUser() throws IOException {
         return userService.getCurrentLoggedUser();
     }
@@ -41,10 +41,6 @@ public class UserController {
         Profile profile = new Profile(file, userId);
         return cloudflareR2Service.uploadProfileImage(profile);
     }
-//
-//    @GetMapping("/profile")
-//    public ResponseEntity<Response> getProfile(@RequestParam("id") String userId) throws IOException {
-//
-//    }
+
 
 }
