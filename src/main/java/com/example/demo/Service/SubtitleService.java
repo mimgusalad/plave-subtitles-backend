@@ -33,32 +33,30 @@ public class SubtitleService {
         Data data = dashboardService.findData(videoId);
         SubEntity subEntity = new SubEntity();
         subEntity.setVideoId(data.getVideoId());
-        subEntity.setMembers(data.getMembers().toString());
+        StringBuilder members = new StringBuilder();
+        for(String member : data.getMembers())
+            members.append(member).append(", ");
+        subEntity.setMembers(members.toString());
         subEntity.setThumbnail("https://i.ytimg.com/vi/" + data.getVideoId() + "/mqdefault.jpg");
         subEntity.setSheetName("SubTable");
 
-        String scriptUrl = "https://script.google.com/macros/s/AKfycbyuxiqiuN3I36xRWimqBC4iNmmljB_6MoibVT3EYNDlYx0FUcP0A6jW457w9v_0R04Rsg/exec";
-        // Convert SubEntity object to JSON
+        String scriptUrl ="https://script.google.com/macros/s/AKfycbzfQYSqZ45PQyLCJigP5VlvrLfhx4FrHlI2tqkijjP7kIdFFFICJbmmkAukzAGL-7HtPQ/exec";
+
         ObjectMapper objectMapper = new ObjectMapper();
         String requestBody = objectMapper.writeValueAsString(subEntity);
-        System.out.println(requestBody);
 
-        // Create HttpClient instance
         HttpClient client = HttpClient.newBuilder()
                 .followRedirects(HttpClient.Redirect.NORMAL)
                 .build();
 
-        // Build the POST request
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(scriptUrl))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
 
-        // Send the POST request and handle the response
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        // Check response status and print response body
         if (response.statusCode() == 200) {
             System.out.println("Successfully sent data to Google Apps Script.");
         } else {
