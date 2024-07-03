@@ -77,10 +77,12 @@ public class SubtitleService {
         InputStream inputStream = jsonToStream(result);
         String originalFilename = file.getOriginalFilename();
         String[] filename = originalFilename.split("\\.");
-        String[] videoKey = filename[0].split("_");
-        String lang = videoKey[1];
-        String objectKey = "subtitle/"+videoKey[0]+"/"+lang+".json";
-        System.out.println(objectKey);
+        int lastUnderscoreIndex = filename[0].lastIndexOf('_');
+        String videoKey = filename[0].substring(0, lastUnderscoreIndex);
+//        String[] videoKey = filename[0].split("_"); // occurs error when the videoKey starts with _
+//        String lang = videoKey[1];
+        String lang = filename[0].substring(lastUnderscoreIndex+1);
+        String objectKey = "subtitle/"+videoKey+"/"+lang+".json";
         cloudflareR2Service.uploadJsonFile(objectKey, inputStream);
         return "success";
     }
